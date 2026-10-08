@@ -1,0 +1,129 @@
+# RanchoRPG - configuración. Se edita desde el juego: /rancho admin
+seasons:
+  world: world
+  use-real-time: false
+  length-days: 7
+  bossbar: true
+  title: true
+  offset:
+    spring: 0.0
+    summer: 8.0
+    autumn: -2.0
+    winter: -14.0
+
+events:
+  harvest:
+    enabled: true
+    chance: 15.0
+    duration-days: 2
+  frost:
+    enabled: true
+    chance: 15.0
+    duration-days: 2
+    temp-offset: -10.0
+  heatwave:
+    enabled: true
+    chance: 15.0
+    duration-days: 2
+    temp-offset: 10.0
+  drought:
+    enabled: true
+    chance: 10.0
+    duration-days: 2
+
+temperature:
+  biome-scale: 25.0
+  biome-offset: -5.0
+  day-amplitude: 4.0
+  rain-offset: -4.0
+  thunder-offset: -5.0
+  lava-bonus: 6.0
+  fire-bonus: 4.0
+  torch-bonus: 1.0
+  ice-bonus: -3.0
+  water-bonus: -1.0
+  scan-radius: 3
+  players:
+    enabled: false
+    cold-threshold: -2.0
+    heat-threshold: 40.0
+
+animals:
+  time-scale: 1.0
+  level-days: 1.0
+  breed-min-happiness: 70.0
+  vaccine-days: 5.0
+  disease-chance: 1.0
+  manure-days: 0.3
+  overgraze-chance: 0.02
+  hologram: true
+  hologram-range: 40.0
+  actionbar: false
+
+genetics:
+  mutation-chance: 0.1
+  serum-positive: 0.65
+  max-mutations: 5
+  horse-cap-health: 60.0
+  horse-cap-speed: 0.35
+  horse-cap-jump: 1.0
+
+crops:
+  time-scale: 1.0
+  growth-multiplier: 1.0
+  water-decay-per-day: 60.0
+  wither-days: 1.0
+  can-uses: 20
+  greenhouse-radius: 6
+  pot-radius: 2
+
+economy:
+  use-vault: true
+
+farmer:
+  xp-multiplier: 1.0
+  xp:
+    feed: 2.0
+    cure: 15.0
+    produce: 5.0
+    breed: 10.0
+    birth: 20.0
+    plant: 1.0
+    harvest: 3.0
+    sell: 0.5
+
+market:
+  dynamic-drop: 0.005
+  dynamic-min: 0.6
+  dynamic-recover: 0.02
+  demand:
+    meat:
+      spring: 1.0
+      summer: 0.9
+      autumn: 1.0
+      winter: 1.2
+    milk:
+      spring: 1.1
+      summer: 0.9
+      autumn: 1.0
+      winter: 1.2
+    wool:
+      spring: 0.9
+      summer: 0.7
+      autumn: 1.1
+      winter: 1.5
+    egg:
+      spring: 1.3
+      summer: 1.0
+      autumn: 0.9
+      winter: 1.0
+    leather:
+      spring: 1.0
+      summer: 1.0
+      autumn: 1.1
+      winter: 1.2
+    crop:
+      spring: 1.0
+      summer: 1.1
+      autumn: 1.3
+      winter: 0.9
