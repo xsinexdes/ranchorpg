@@ -1,0 +1,124 @@
+# RanchoRPG - configuración. Se edita desde el juego: /rancho admin
+seasons:
+  world: world
+  use-real-time: false
+  length-days: 7
+  bossbar: true
+  title: true
+  offset:
+    spring: 0.0
+    summer: 8.0
+    autumn: -2.0
+    winter: -14.0
+
+events:
+  harvest:
+    enabled: true
+    chance: 15.0
+    duration-days: 2
+  frost:
+    enabled: true
+    chance: 15.0
+    duration-days: 2
+    temp-offset: -10.0
+  heatwave:
+    enabled: true
+    chance: 15.0
+    duration-days: 2
+    temp-offset: 10.0
+  drought:
+    enabled: true
+    chance: 10.0
+    duration-days: 2
+
+temperature:
+  biome-scale: 25.0
+  biome-offset: -5.0
+  day-amplitude: 4.0
+  rain-offset: -4.0
+  thunder-offset: -5.0
+  lava-bonus: 6.0
+  fire-bonus: 4.0
+  torch-bonus: 1.0
+  ice-bonus: -3.0
+  water-bonus: -1.0
+  scan-radius: 3
+  players:
+    enabled: false
+    cold-threshold: -2.0
+    heat-threshold: 40.0
+
+animals:
+  time-scale: 1.0
+  level-days: 1.0
+  breed-min-happiness: 70.0
+  vaccine-days: 5.0
+  disease-chance: 1.0
+  manure-days: 0.3
+  overgraze-chance: 0.02
+  hologram: true
+  hologram-range: 40.0
+  actionbar: false
+  owner-lock: false
+  max-per-pass: 80
+
+genetics:
+  mutation-chance: 0.1
+  serum-positive: 0.65
+  max-mutations: 5
+  horse-cap-health: 60.0
+  horse-cap-speed: 0.35
+  horse-cap-jump: 1.0
+
+crops:
+  time-scale: 1.0
+  growth-multiplier: 1.0
+  water-decay-per-day: 60.0
+  wither-days: 1.0
+  can-uses: 20
+  greenhouse-radius: 6
+  pot-radius: 2
+  pest-chance: 0.12
+  scarecrow-radius: 8
+  sprinkler-radius: 4
+  sprinkler-interval: 90
+  max-per-pass: 300
+  max-catchup-days: 0.5
+
+economy:
+  use-vault: true
+
+farmer:
+  xp-multiplier: 1.0
+  xp:
+    feed: 2.0
+    cure: 15.0
+    produce: 5.0
+    breed: 10.0
+    birth: 20.0
+    plant: 1.0
+    harvest: 3.0
+    cook: 3.0
+    fish: 4.0
+
+food:
+  # Multiplica el tiempo que tarda en pudrirse la comida (2.0 = dura el doble)
+  spoil-multiplier: 1.0
+
+machines:
+  hive-hours: 0.5
+  # Velocidad a la que se pudre la comida dentro de la nevera (0.1 = 10 veces más lento)
+  fridge-spoil-factor: 0.1
+
+fair:
+  enabled: false
+  interval-hours: 3.0
+  duration-minutes: 10
+  prize:
+    '1': 500
+    '2': 250
+    '3': 100
+  xp:
+    '1': 100
+    '2': 60
+    '3': 30
