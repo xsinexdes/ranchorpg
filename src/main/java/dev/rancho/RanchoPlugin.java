@@ -1,0 +1,261 @@
+package dev.rancho;
+
+import dev.rancho.animal.AnimalListener;
+import dev.rancho.animal.AnimalManager;
+import dev.rancho.animal.SpeciesRegistry;
+import dev.rancho.api.RanchoExpansion;
+import dev.rancho.climate.PlayerClimate;
+import dev.rancho.climate.TemperatureManager;
+import dev.rancho.climate.WeatherManager;
+import dev.rancho.visual.HudManager;
+import dev.rancho.command.RanchoCommand;
+import dev.rancho.config.Lang;
+import dev.rancho.config.Messages;
+import dev.rancho.crop.CropListener;
+import dev.rancho.crop.CropManager;
+import dev.rancho.crop.CropRegistry;
+import dev.rancho.food.FoodListener;
+import dev.rancho.food.FoodManager;
+import dev.rancho.food.FoodRegistry;
+import dev.rancho.food.KitchenManager;
+import dev.rancho.animal.TroughManager;
+import dev.rancho.animal.BreedRegistry;
+import dev.rancho.fair.FairManager;
+import dev.rancho.fish.FishListener;
+import dev.rancho.machine.MachineManager;
+import dev.rancho.economy.EconomyBridge;
+import dev.rancho.farmer.FarmerManager;
+import dev.rancho.gui.ChatPrompt;
+import dev.rancho.gui.LookInfo;
+import dev.rancho.gui.Menu;
+import dev.rancho.gui.MenuListener;
+import dev.rancho.item.ModelService;
+import dev.rancho.minigame.MiniGameManager;
+import dev.rancho.item.RecipeRegistry;
+import dev.rancho.visual.AmbientEffects;
+import dev.rancho.visual.VisualManager;
+import dev.rancho.quality.QualityLevels;
+import dev.rancho.season.SeasonManager;
+import dev.rancho.util.Keys;
+import org.bukkit.Bukkit;
+import org.bukkit.NamespacedKey;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.List;
+
+/** Clase principal de RanchoRPG: crea y conecta todos los módulos. */
+public final class RanchoPlugin extends JavaPlugin {
+
+    private static RanchoPlugin instance;
+
+    private Lang lang;
+    private QualityLevels levels;
+    private SeasonManager seasons;
+    private TemperatureManager temperature;
+    private PlayerClimate playerClimate;
+    private WeatherManager weather;
+    private HudManager hud;
+    private MiniGameManager minigames;
+    private SpeciesRegistry species;
+    private CropRegistry cropDefs;
+    private AnimalManager animals;
+    private CropManager crops;
+    private FarmerManager farmers;
+    private EconomyBridge economy;
+    private FoodRegistry foods;
+    private FoodManager food;
+    private KitchenManager kitchen;
+    private TroughManager troughs;
+    private BreedRegistry breeds;
+    private MachineManager machines;
+    private FairManager fair;
+    private VisualManager visuals;
+    private AmbientEffects ambient;
+    private RecipeRegistry recipes;
+    private ModelService models;
+    private ChatPrompt prompts;
+    private LookInfo lookInfo;
+    private BukkitTask menuTask;
+
+    @Override
+    public void onEnable() {
+        instance = this;
+        saveDefaultConfig();
+        migrateConfig();
+        Keys.init(this);
+        Messages.init();
+
+        models = new ModelService(this);
+        lang = new Lang(this);
+        levels = new QualityLevels(this);
+        species = new SpeciesRegistry(this);
+        breeds = new BreedRegistry(this);
+        cropDefs = new CropRegistry(this);
+        seasons = new SeasonManager(this);
+        temperature = new TemperatureManager(this);
+        playerClimate = new PlayerClimate(this);
+        weather = new WeatherManager(this);
+        hud = new HudManager(this);
+        minigames = new MiniGameManager(this);
+        farmers = new FarmerManager(this);
+        economy = new EconomyBridge(this);
+        foods = new FoodRegistry(this);
+        food = new FoodManager(this);
+        kitchen = new KitchenManager(this);
+        troughs = new TroughManager(this);
+        machines = new MachineManager(this);
+        fair = new FairManager(this);
+        visuals = new VisualManager(this);
+        ambient = new AmbientEffects(this);
+        animals = new AnimalManager(this);
+        crops = new CropManager(this);
+        prompts = new ChatPrompt(this);
+        lookInfo = new LookInfo(this);
+        recipes = new RecipeRegistry(this);
+        recipes.register();
+
+        var pm = getServer().getPluginManager();
+        pm.registerEvents(new MenuListener(), this);
+        pm.registerEvents(prompts, this);
+        pm.registerEvents(seasons, this);
+        pm.registerEvents(weather, this);
+        pm.registerEvents(minigames, this);
+        pm.registerEvents(farmers, this);
+        pm.registerEvents(new AnimalListener(this), this);
+        pm.registerEvents(new CropListener(this), this);
+        pm.registerEvents(new FoodListener(this), this);
+        pm.registerEvents(troughs, this);
+        pm.registerEvents(machines, this);
+        pm.registerEvents(visuals, this);
+        pm.registerEvents(new FishListener(this), this);
+
+        RanchoCommand command = new RanchoCommand(this);
+        PluginCommand pc = getCommand("rancho");
+        if (pc != null) {
+            pc.setExecutor(command);
+            pc.setTabCompleter(command);
+        }
+
+        if (pm.getPlugin("PlaceholderAPI") != null) {
+            new RanchoExpansion(this).register();
+            getLogger().info("PlaceholderAPI detectado: placeholders %rancho_*% registrados.");
+        }
+
+        seasons.start();
+        weather.start();
+        hud.start();
+        minigames.start();
+        farmers.start();
+        kitchen.start();
+        machines.start();
+        fair.start();
+        visuals.start();
+        ambient.start();
+        food.start();
+        crops.start();
+        playerClimate.start();
+        lookInfo.start();
+        // Los animales se registran tras cargar los mundos
+        Bukkit.getScheduler().runTask(this, () -> animals.start());
+        menuTask = Bukkit.getScheduler().runTaskTimer(this, this::refreshMenus, 20L, 20L);
+        getLogger().info("RanchoRPG activado.");
+    }
+
+    @Override
+    public void onDisable() {
+        if (menuTask != null) menuTask.cancel();
+        if (lookInfo != null) lookInfo.stop();
+        if (playerClimate != null) playerClimate.stop();
+        if (animals != null) animals.shutdown();
+        if (crops != null) crops.shutdown();
+        if (minigames != null) minigames.stop();
+        if (hud != null) hud.stop();
+        if (weather != null) weather.stop();
+        if (ambient != null) ambient.stop();
+        if (visuals != null) visuals.shutdown();
+        if (fair != null) fair.stop();
+        if (machines != null) machines.shutdown();
+        if (kitchen != null) kitchen.shutdown();
+        if (food != null) food.stop();
+        if (troughs != null) troughs.save();
+        if (farmers != null) farmers.shutdown();
+        if (seasons != null) seasons.shutdown();
+        if (recipes != null) recipes.unregister();
+    }
+
+    /** Ajusta configuraciones antiguas a los nuevos valores por defecto (modelos 3D activados, más dificultad). */
+    private void migrateConfig() {
+        var cfg = getConfig();
+        if (cfg.getInt("meta.config-version", 1) >= 2) {
+            return;
+        }
+        cfg.set("visuals.enabled", true);
+        if (cfg.getDouble("machines.hive-hours", 1.0) == 0.5) {
+            cfg.set("machines.hive-hours", 1.0);
+        }
+        if (cfg.getDouble("animals.level-days", 2.0) == 1.0) {
+            cfg.set("animals.level-days", 2.0);
+        }
+        cfg.set("meta.config-version", 2);
+        saveConfig();
+    }
+
+    /** Redibuja los menús "en vivo" (estadísticas de animales, cultivos...) mientras estén abiertos. */
+    private void refreshMenus() {
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            if (p.getOpenInventory().getTopInventory().getHolder() instanceof Menu m && m.live()) {
+                m.refresh();
+            }
+        }
+    }
+
+    /** Recarga config.yml, lang.yml y los archivos de datos de definiciones. */
+    public void reloadAll() {
+        reloadConfig();
+        lang.load();
+        levels.load();
+        species.load();
+        breeds.load();
+        cropDefs.load();
+        foods.load();
+        models.load();
+        economy.hook();
+        recipes.register();
+        applySettings();
+    }
+
+    /** Aplica en memoria los valores actuales de la config (tras editarlos por GUI). */
+    public void applySettings() {
+        seasons.reload();
+        temperature.reload();
+    }
+
+    public static RanchoPlugin get() { return instance; }
+    public Lang lang() { return lang; }
+    public QualityLevels levels() { return levels; }
+    public SeasonManager seasons() { return seasons; }
+    public TemperatureManager temperature() { return temperature; }
+    public WeatherManager weather() { return weather; }
+    public HudManager hud() { return hud; }
+    public MiniGameManager minigames() { return minigames; }
+    public SpeciesRegistry species() { return species; }
+    public CropRegistry cropDefs() { return cropDefs; }
+    public AnimalManager animals() { return animals; }
+    public CropManager crops() { return crops; }
+    public FarmerManager farmers() { return farmers; }
+    public EconomyBridge economy() { return economy; }
+    public FoodRegistry foods() { return foods; }
+    public FoodManager food() { return food; }
+    public KitchenManager kitchen() { return kitchen; }
+    public TroughManager troughs() { return troughs; }
+    public BreedRegistry breeds() { return breeds; }
+    public MachineManager machines() { return machines; }
+    public FairManager fair() { return fair; }
+    public VisualManager visuals() { return visuals; }
+    public ChatPrompt prompts() { return prompts; }
+    public ModelService models() { return models; }
+    public List<NamespacedKey> recipeKeys() { return recipes.keys(); }
+}
